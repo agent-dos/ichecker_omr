@@ -176,30 +176,33 @@ class CornerDetector:
         return final_corners, viz_steps
 
     def _remove_duplicates(self, candidates: List[Dict], distance_threshold: int) -> List[Dict]:
-        """Remove duplicate candidates based on proximity using a simple greedy approach."""
+        """Remove duplicate candidates based on proximity."""
         if not candidates:
             return []
-        # Sort candidates? Maybe by confidence or area if available? Using order received for now.
+        
         unique: List[Dict] = []
         for candidate in candidates:
             is_duplicate = False
             cx, cy = candidate.get('center', (None, None))
             if cx is None:
-                continue  # Skip candidates without center
-
-            for existing in unique:
+                continue
+            
+            for i, existing in enumerate(unique):
                 ex, ey = existing.get('center', (None, None))
                 if ex is None:
                     continue
-
-                # Calculate distance (use hypot for clarity)
+                
                 distance = np.hypot(cx - ex, cy - ey)
                 if distance < distance_threshold:
                     is_duplicate = True
-                    # Optional: Keep the one with better score/area if available?
-                    break  # Found a duplicate, stop checking for this candidate
+                    # Keep the one with larger area
+                    if candidate.get('area', 0) > existing.get('area', 0):
+                        unique[i] = candidate  # Replace with larger area
+                    break
+            
             if not is_duplicate:
                 unique.append(candidate)
+        
         return unique
 
     # --- _select_best_corners and _calculate_corner_score need scoring params ---

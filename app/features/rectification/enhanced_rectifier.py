@@ -105,15 +105,28 @@ class EnhancedRectifier:
         """Extract and validate corner points."""
         order = ['top_left', 'top_right', 'bottom_right', 'bottom_left']
         points = []
-
+        
         for name in order:
             corner_data = corners.get(name)
             if not corner_data or 'center' not in corner_data:
                 logger.error(f"Missing corner: {name}")
                 return None
-
-            points.append(corner_data['center'])
-
+            
+            center = corner_data['center']
+            
+            # Validate coordinate format
+            if not isinstance(center, (tuple, list)) or len(center) != 2:
+                logger.error(f"Invalid coordinate format for corner {name}: {center}")
+                return None
+            
+            # Validate numeric values
+            try:
+                x, y = float(center[0]), float(center[1])
+                points.append([x, y])
+            except (ValueError, TypeError, IndexError) as e:
+                logger.error(f"Invalid coordinates for corner {name}: {center}. Error: {e}")
+                return None
+        
         return np.array(points, dtype=np.float32)
 
     def _calculate_optimal_dst_points(

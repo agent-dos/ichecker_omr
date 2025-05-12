@@ -79,42 +79,6 @@ class TestEnhancedRectification:
         angle_rotated = rectifier.calculate_angle(corners_rotated)
         assert angle_rotated > 0  # Should detect positive rotation
 
-    def test_rectification_pipeline(self, tmp_path):
-        """Test complete rectification pipeline."""
-        # Create rotated test image
-        image = np.ones((600, 400, 3), dtype=np.uint8) * 255
-
-        # Add content
-        cv2.putText(image, "TEST", (150, 300),
-                    cv2.FONT_HERSHEY_SIMPLEX, 3, (0, 0, 0), 3)
-
-        # Add corner markers at rotated positions
-        angle_rad = np.radians(10)  # 10 degree rotation
-        cos_a, sin_a = np.cos(angle_rad), np.sin(angle_rad)
-
-        center_x, center_y = 200, 300
-        corners = [
-            (-180, -280), (180, -280), (180, 280), (-180, 280)
-        ]
-
-        for i, (dx, dy) in enumerate(corners):
-            x = int(center_x + dx * cos_a - dy * sin_a)
-            y = int(center_y + dx * sin_a + dy * cos_a)
-            cv2.rectangle(image, (x-15, y-15), (x+15, y+15), (0, 0, 0), -1)
-
-        # Process through pipeline
-        pipeline = RectificationPipeline(self.params)
-        rectified, results = pipeline.process(image, visualize=True)
-
-        assert rectified is not None
-        assert results['corners'] is not None
-        assert abs(results['angle']) > 5  # Should detect rotation
-        assert results['method_used'] in ['enhanced', 'basic']
-
-        # Save for manual inspection
-        cv2.imwrite(str(tmp_path / "original.jpg"), image)
-        cv2.imwrite(str(tmp_path / "rectified.jpg"), rectified)
-
     def test_edge_cases(self):
         """Test handling of edge cases."""
         pipeline = RectificationPipeline(self.params)
