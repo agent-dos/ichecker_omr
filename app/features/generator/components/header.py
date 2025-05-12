@@ -8,7 +8,8 @@ from typing import Dict, Optional
 from app.features.generator.components.fonts import load_font
 from app.core.constants import (
     TITLE_FONT_SIZE, DEFAULT_FONT_SIZE,
-    TITLE_COLOR, HEADER_TEXT_COLOR, HEADER_LINE_COLOR
+    TITLE_COLOR, HEADER_TEXT_COLOR, HEADER_LINE_COLOR,
+    PAGE_WIDTH  # Import PAGE_WIDTH
 )
 
 
@@ -26,13 +27,18 @@ class HeaderBuilder:
         draw: ImageDraw.Draw,
         title: str,
         student_name: str,
-        header_fields: Optional[Dict] = None
+        header_fields: Optional[Dict] = None,
+        page_width: Optional[int] = None  # Add optional page_width parameter
     ) -> None:
         """
         Draw header with title and fields.
         """
+        # Use provided page_width or fall back to constant
+        if page_width is None:
+            page_width = PAGE_WIDTH
+
         # Draw title
-        self._draw_title(draw, title)
+        self._draw_title(draw, title, page_width)
 
         # Draw header fields
         if header_fields is None:
@@ -40,13 +46,17 @@ class HeaderBuilder:
 
         self._draw_fields(draw, header_fields)
 
-    def _draw_title(self, draw: ImageDraw.Draw, title: str) -> None:
+    def _draw_title(self, draw: ImageDraw.Draw, title: str, page_width: int) -> None:
         """
         Draw centered title.
+
+        Args:
+            draw: ImageDraw object
+            title: Title text to draw
+            page_width: Width of the page
         """
         bbox = draw.textbbox((0, 0), title, font=self.title_font)
         title_width = bbox[2] - bbox[0]
-        page_width = draw.im.width
 
         x = (page_width - title_width) // 2
         draw.text((x, 14), title, font=self.title_font, fill=TITLE_COLOR)

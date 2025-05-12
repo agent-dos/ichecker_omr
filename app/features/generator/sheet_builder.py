@@ -42,7 +42,8 @@ class SheetBuilder:
 
         # Add components
         self.header_builder.draw(
-            draw, title, student_name, header_fields
+            draw, title, student_name, header_fields,
+            page_width=PAGE_WIDTH  # Pass page width explicitly
         )
 
         if show_corner_markers:
