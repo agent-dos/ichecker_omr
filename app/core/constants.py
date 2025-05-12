@@ -8,8 +8,8 @@ PAGE_WIDTH, PAGE_HEIGHT = 850, 1202
 BG_COLOR = (255, 255, 255)
 
 # Font Configuration (from sheet_layout_constants.py)
-FONT_PATH = "arial.ttf"
-FONT_PATH_BOLD = "arialbd.ttf"
+FONT_PATH = "fonts/arial.ttf"
+FONT_PATH_BOLD = "fonts/arialbd.ttf"
 DEFAULT_FONT_SIZE = 16
 TITLE_FONT_SIZE = 20
 LETTER_FONT_BOLD = True
