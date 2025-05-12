@@ -46,10 +46,13 @@ class RectificationStep(AnalysisStep):
             rectified_img = processing_img
             success_msg = "No rectification needed/possible"
 
-        # Create corner visualization for visual chain
-        output_viz = self._create_visualization(processing_img, corners)
+        # Create corner visualization
+        corner_viz = self._create_corner_visualization(visual_chain, corners)
 
-        # Create step info
+        # For the main visualization, keep it simple
+        output_viz = rectified_img.copy()
+
+        # Create step info with additional data for column display
         step_info = self.create_step_info(
             description=f'{success_msg}. Corners: {len(corners) if corners else 0}',
             success=True,
@@ -57,6 +60,18 @@ class RectificationStep(AnalysisStep):
             output_image=output_viz,
             viz_steps=viz_steps if visualize else None
         )
+
+        # Add the three separate images for column display
+        step_info['column_images'] = {
+            'input': visual_chain,
+            'corners': corner_viz,
+            'rectified': rectified_img
+        }
+        step_info['column_labels'] = {
+            'input': 'Input Image',
+            'corners': 'Detected Corners',
+            'rectified': 'Rectified Output'
+        }
 
         return {
             'step_info': step_info,
@@ -69,9 +84,9 @@ class RectificationStep(AnalysisStep):
             }
         }
 
-    def _create_visualization(self, image: np.ndarray,
-                              corners: Optional[Dict]) -> np.ndarray:
-        """Create visualization showing detected corners."""
+    def _create_corner_visualization(self, image: np.ndarray,
+                                     corners: Optional[Dict]) -> np.ndarray:
+        """Create visualization showing detected corners on the input image."""
         if corners and len(corners) == 4:
             return visualize_corners(
                 image.copy(), corners,

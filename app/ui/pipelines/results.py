@@ -43,6 +43,7 @@ def display_pipeline_results(results: Dict) -> None:
         _display_final_summary(results)
 
 
+# app/ui/pipelines/results.py (updated _display_step function)
 def _display_step(step: Dict, index: int) -> None:
     """Display a single pipeline step, including intermediate visualizations."""
     step_name = step.get('name', f'Step {index+1}')
@@ -60,20 +61,37 @@ def _display_step(step: Dict, index: int) -> None:
     if 'description' in step:
         st.write(step.get('description', 'No description available.'))
 
-    # Display Input/Output Comparison (if available)
-    col1, col2 = st.columns(2)
-    with col1:
-        if 'input_image' in step and isinstance(step['input_image'], np.ndarray):
-            st.write("**Input to Step**")
-            display_image(step['input_image'], use_container_width=True)
-        # else:
-        #      st.write("Input image not available for this step.")
-    with col2:
-        if 'output_image' in step and isinstance(step['output_image'], np.ndarray):
-            st.write("**Output / Visualization**")
-            display_image(step['output_image'], use_container_width=True)
-        # else:
-        #      st.write("Output image not available for this step.")
+    # Check if this step has column images (special case for rectification)
+    if 'column_images' in step and isinstance(step['column_images'], dict):
+        column_images = step['column_images']
+        column_labels = step.get('column_labels', {})
+
+        # Create columns based on number of images
+        cols = st.columns(len(column_images))
+
+        # Display each image in its column
+        for idx, (key, img) in enumerate(column_images.items()):
+            with cols[idx]:
+                if key in column_labels:
+                    st.write(f"**{column_labels[key]}**")
+                else:
+                    st.write(f"**{key.title()}**")
+
+                if isinstance(img, np.ndarray):
+                    display_image(img, use_container_width=True)
+                else:
+                    st.warning(f"Invalid image format for {key}")
+    else:
+        # Standard two-column display for other steps
+        col1, col2 = st.columns(2)
+        with col1:
+            if 'input_image' in step and isinstance(step['input_image'], np.ndarray):
+                st.write("**Input to Step**")
+                display_image(step['input_image'], use_container_width=True)
+        with col2:
+            if 'output_image' in step and isinstance(step['output_image'], np.ndarray):
+                st.write("**Output / Visualization**")
+                display_image(step['output_image'], use_container_width=True)
 
     # Display Intermediate Visualizations (if available and enabled)
     intermediate_viz = step.get('intermediate_visualizations')
