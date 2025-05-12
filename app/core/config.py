@@ -126,6 +126,13 @@ DEFAULT_PARAMS = {
             'debug': False,
         },
         
+        'strategy_enhanced_l_shape': {
+            'enabled': True,
+            'debug': False,
+            'min_ratio_threshold': 0.3,
+            'max_ratio_threshold': 0.7,
+        },
+        
         # Adjust threshold strategy for L-shapes
         'strategy_threshold': {
             'enabled': True,

@@ -5,6 +5,7 @@ import logging
 from typing import Dict, List, Optional, Tuple, Any  # Added Any
 
 # Import components
+from app.features.corners.strategies.enhanced_l_shape import EnhancedLShapeStrategy
 from app.features.corners.strategies.pattern_based import PatternBasedStrategy
 from app.features.corners.strategies.threshold import ThresholdStrategy
 from app.features.corners.strategies.adaptive import AdaptiveStrategy
@@ -46,9 +47,9 @@ class CornerDetector:
             # Placeholder
             logger.warning(
                 "EdgeStrategy not fully implemented for viz/params yet.")
-        if self.params.get('strategy_pattern', {}).get('enabled', True):
-            self.strategies.append(PatternBasedStrategy(
-                self.params.get('strategy_pattern', {})
+        if self.params.get('strategy_enhanced_l_shape', {}).get('enabled', True):
+            self.strategies.append(EnhancedLShapeStrategy(
+                self.params.get('strategy_enhanced_l_shape', {})
             ))
 
         logger.debug(
@@ -184,19 +185,19 @@ class CornerDetector:
         """Remove duplicate candidates based on proximity."""
         if not candidates:
             return []
-        
+
         unique: List[Dict] = []
         for candidate in candidates:
             is_duplicate = False
             cx, cy = candidate.get('center', (None, None))
             if cx is None:
                 continue
-            
+
             for i, existing in enumerate(unique):
                 ex, ey = existing.get('center', (None, None))
                 if ex is None:
                     continue
-                
+
                 distance = np.hypot(cx - ex, cy - ey)
                 if distance < distance_threshold:
                     is_duplicate = True
@@ -204,10 +205,10 @@ class CornerDetector:
                     if candidate.get('area', 0) > existing.get('area', 0):
                         unique[i] = candidate  # Replace with larger area
                     break
-            
+
             if not is_duplicate:
                 unique.append(candidate)
-        
+
         return unique
 
     # --- _select_best_corners and _calculate_corner_score need scoring params ---
