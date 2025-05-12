@@ -65,13 +65,13 @@ def _display_step(step: Dict, index: int) -> None:
     with col1:
         if 'input_image' in step and isinstance(step['input_image'], np.ndarray):
             st.write("**Input to Step**")
-            display_image(step['input_image'], use_column_width=True)
+            display_image(step['input_image'], use_container_width=True)
         # else:
         #      st.write("Input image not available for this step.")
     with col2:
         if 'output_image' in step and isinstance(step['output_image'], np.ndarray):
             st.write("**Output / Visualization**")
-            display_image(step['output_image'], use_column_width=True)
+            display_image(step['output_image'], use_container_width=True)
         # else:
         #      st.write("Output image not available for this step.")
 
@@ -87,7 +87,7 @@ def _display_step(step: Dict, index: int) -> None:
                 viz_img = intermediate_viz[viz_key]
                 if isinstance(viz_img, np.ndarray):
                     st.caption(f"`{viz_key}`")  # Display key as caption
-                    display_image(viz_img, use_column_width=True)
+                    display_image(viz_img, use_container_width=True)
                 else:
                     st.warning(
                         f"Invalid intermediate visualization format for key '{viz_key}': {type(viz_img)}")

@@ -57,8 +57,6 @@ def display_image(
             width=None,  # Let container width control it
             output_format='auto',
             channels=channels,
-            # --- Use the new parameter ---
-            use_column_width='auto',  # Recommended setting for container width behavior
             clamp=False,
             use_container_width=use_container_width
         )
