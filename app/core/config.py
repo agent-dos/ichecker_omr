@@ -118,6 +118,22 @@ DEFAULT_PARAMS = {
             'qr_canny_threshold2': 150,
             'qr_edge_ratio_threshold': 0.15,  # Threshold for edge density
             'qr_complexity_threshold': 0.3,  # Threshold for variance/complexity
+        },
+        # Pattern-based strategy for L-shapes
+        'strategy_pattern': {
+            'enabled': True,
+            'pattern_type': 'l_shape',
+            'debug': False,
+        },
+        
+        # Adjust threshold strategy for L-shapes
+        'strategy_threshold': {
+            'enabled': True,
+            'levels': [50, 100, 150, 200],  # More levels for L-shapes
+            'threshold_type': 'THRESH_BINARY_INV',
+            'morph_op1': 'MORPH_CLOSE',
+            'morph_op2': 'MORPH_OPEN',
+            'morph_ksize': 5,
         }
     },
 

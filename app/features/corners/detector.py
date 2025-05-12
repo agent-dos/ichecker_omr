@@ -5,6 +5,7 @@ import logging
 from typing import Dict, List, Optional, Tuple, Any  # Added Any
 
 # Import components
+from app.features.corners.strategies.pattern_based import PatternBasedStrategy
 from app.features.corners.strategies.threshold import ThresholdStrategy
 from app.features.corners.strategies.adaptive import AdaptiveStrategy
 from app.features.corners.strategies.edge import EdgeStrategy
@@ -45,6 +46,10 @@ class CornerDetector:
             # Placeholder
             logger.warning(
                 "EdgeStrategy not fully implemented for viz/params yet.")
+        if self.params.get('strategy_pattern', {}).get('enabled', True):
+            self.strategies.append(PatternBasedStrategy(
+                self.params.get('strategy_pattern', {})
+            ))
 
         logger.debug(
             f"CornerDetector initialized with {len(self.strategies)} enabled strategies.")

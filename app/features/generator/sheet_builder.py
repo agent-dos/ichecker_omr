@@ -7,7 +7,7 @@ from typing import Dict, Optional
 
 from app.features.generator.components.header import HeaderBuilder
 from app.features.generator.components.bubbles import BubbleGrid
-from app.features.generator.components.corners import CornerMarkers
+from app.features.generator.components.corner_patterns import AdvancedCornerMarkers
 from app.features.generator.components.qr_code import QRCodeGenerator
 from app.core.constants import PAGE_WIDTH, PAGE_HEIGHT, BG_COLOR
 
@@ -17,10 +17,16 @@ class SheetBuilder:
     Builds answer sheet structure.
     """
 
-    def __init__(self):
+    def __init__(self, corner_pattern: str = "concentric"):
+        """
+        Initialize sheet builder with specified corner pattern.
+
+        Args:
+            corner_pattern: Type of corner pattern to use
+        """
         self.header_builder = HeaderBuilder()
         self.bubble_grid = BubbleGrid()
-        self.corner_markers = CornerMarkers()
+        self.corner_markers = AdvancedCornerMarkers(corner_pattern)
         self.qr_generator = QRCodeGenerator()
 
     def build(
@@ -43,7 +49,7 @@ class SheetBuilder:
         # Add components
         self.header_builder.draw(
             draw, title, student_name, header_fields,
-            page_width=PAGE_WIDTH  # Pass page width explicitly
+            page_width=PAGE_WIDTH
         )
 
         if show_corner_markers:
