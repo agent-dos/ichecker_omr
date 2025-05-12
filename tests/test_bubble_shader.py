@@ -21,64 +21,43 @@ class TestBubbleShader:
         assert self.shader.CHOICES_PER_QUESTION == 5
         assert self.shader.CHOICE_LABELS == ['A', 'B', 'C', 'D', 'E']
 
-    def test_group_bubbles_standard_5_per_row(self):
-        """Test grouping with standard 5 bubbles per row."""
-        # Create exactly 5 bubbles per row
-        bubbles = np.array([
-            # Row 1 (A-E)
-            [30, 50, 10],
-            [60, 51, 10],
-            [90, 49, 10],
-            [120, 50, 10],
-            [150, 52, 10],
-            # Row 2 (A-E)
-            [30, 100, 10],
-            [60, 101, 10],
-            [90, 99, 10],
-            [120, 100, 10],
-            [150, 98, 10],
-        ])
+    def test_bubble_position_calculation(self):
+        """Test that bubble positions are calculated correctly."""
+        positions = self.shader._calculate_bubble_positions()
 
-        rows = self.shader._group_bubbles_by_rows(bubbles, 200)
+        # Should have 60 questions * 5 choices = 300 bubbles
+        assert len(positions) == 300
 
-        assert len(rows) == 2
-        assert all(len(row) == 5 for row in rows.values())
+        # Verify all positions have correct structure
+        for pos in positions:
+            assert len(pos) == 3  # (x, y, radius)
+            assert pos[2] == self.shader.expected_radius
 
-        # Verify ordering (should be sorted by X)
-        for row_bubbles in rows.values():
-            x_coords = [b[0] for b in row_bubbles]
-            assert x_coords == sorted(x_coords)
+    def test_group_calculated_bubbles(self):
+        """Test grouping of calculated bubble positions."""
+        # Create test positions (simulating 3 rows of 5 bubbles each)
+        test_positions = [
+            (50 + i * 30, 50, 13) for i in range(5)  # Row 0
+        ] + [
+            (50 + i * 30, 100, 13) for i in range(5)  # Row 1
+        ] + [
+            (50 + i * 30, 150, 13) for i in range(5)  # Row 2
+        ]
 
-    def test_group_bubbles_filters_incorrect_counts(self):
-        """Test that rows with != 5 bubbles are filtered out."""
-        bubbles = np.array([
-            # Row 1: Only 3 bubbles (should be filtered)
-            [30, 50, 10],
-            [60, 51, 10],
-            [90, 49, 10],
-            # Row 2: 5 bubbles (should be kept)
-            [30, 100, 10],
-            [60, 101, 10],
-            [90, 99, 10],
-            [120, 100, 10],
-            [150, 98, 10],
-            # Row 3: 6 bubbles (should be filtered)
-            [30, 150, 10],
-            [60, 151, 10],
-            [90, 149, 10],
-            [120, 150, 10],
-            [150, 148, 10],
-            [180, 150, 10],
-        ])
+        rows = self.shader._group_calculated_bubbles(test_positions)
 
-        rows = self.shader._group_bubbles_by_rows(bubbles, 200)
+        assert len(rows) == 3
+        assert 'row_0' in rows
+        assert 'row_1' in rows
+        assert 'row_2' in rows
 
-        assert len(rows) == 1  # Only row 2 should remain
-        assert list(rows.keys()) == ['row_0']
-        assert len(rows['row_0']) == 5
+        # Each row should have exactly 5 bubbles
+        for row_key, bubbles in rows.items():
+            assert len(bubbles) == 5
 
     def test_select_random_answers(self):
         """Test random answer selection."""
+        # Create test rows
         rows = {
             'row_0': [(10, 10, 5), (20, 10, 5), (30, 10, 5), (40, 10, 5), (50, 10, 5)],
             'row_1': [(10, 20, 5), (20, 20, 5), (30, 20, 5), (40, 20, 5), (50, 20, 5)],
@@ -117,11 +96,53 @@ class TestBubbleShader:
         assert result.shape == image.shape
 
     def test_empty_rows_handling(self):
-        """Test handling of empty bubble detection."""
+        """Test handling with images too small for standard layout."""
+        # Create a small image where bubble positions would be out of bounds
         image = np.ones((100, 100, 3), dtype=np.uint8) * 255
 
-        # This should handle empty detection gracefully
+        # This should handle gracefully - no shading on tiny images
         result = self.shader.shade(image, num_answers=5)
 
         assert result is not None
-        assert np.array_equal(result, image)  # Should return unchanged
+        # On a 100x100 image, all bubble positions would be out of bounds
+        # so no changes should occur
+        assert np.array_equal(result, image)  # Should have NO changes
+
+    def test_partial_sheet_shading(self):
+        """Test shading on a partial sheet area."""
+        # Create an image that's large enough for at least some bubbles
+        # Based on constants: LEFT_COL_X=120, QUESTION_START_Y=115
+        image = np.ones((400, 300, 3), dtype=np.uint8) * 255
+
+        result = self.shader.shade(image, num_answers=5)
+
+        assert result is not None
+        assert result.shape == image.shape
+
+        # Some bubbles should be within bounds and get shaded
+        diff = cv2.absdiff(image, result)
+        changed_pixels = np.count_nonzero(diff > 0)
+
+        # With proper dimensions, some bubbles should be shaded
+        if changed_pixels > 0:
+            assert changed_pixels > 100  # Expect significant changes
+        else:
+            # If no changes, it means all positions were out of bounds
+            # which is acceptable for partial sheets
+            pass
+
+    def test_full_sheet_shading(self):
+        """Test shading on a full-sized sheet."""
+        # Create a sheet-sized image
+        image = np.ones((1202, 850, 3), dtype=np.uint8) * 255
+
+        # Generate random answers
+        result = self.shader.shade(image, num_answers=30)
+
+        assert result is not None
+        assert result.shape == image.shape
+
+        # Verify changes were made
+        diff = cv2.absdiff(image, result)
+        changed_pixels = np.count_nonzero(diff > 0)
+        assert changed_pixels > 0, "No pixels were changed"

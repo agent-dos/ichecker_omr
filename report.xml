@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="37" time="2.170" timestamp="2025-05-12T22:51:18.006244+08:00" hostname="DESKTOP-RJ2P1S5"><testcase classname="tests.test_bubble_grid.TestBubbleGrid" name="test_bubble_grid_creation" time="0.077" /><testcase classname="tests.test_bubble_grid.TestBubbleGrid" name="test_draw_bubble_method" time="0.006" /><testcase classname="tests.test_bubble_grid.TestBubbleGrid" name="test_question_row_drawing" time="0.006" /><testcase classname="tests.test_bubble_grid.TestBubbleGrid" name="test_letter_offset_constants" time="0.002" /><testcase classname="tests.test_bubble_shader.TestBubbleShader" name="test_constants" time="0.001" /><testcase classname="tests.test_bubble_shader.TestBubbleShader" name="test_bubble_position_calculation" time="0.001" /><testcase classname="tests.test_bubble_shader.TestBubbleShader" name="test_group_calculated_bubbles" time="0.000" /><testcase classname="tests.test_bubble_shader.TestBubbleShader" name="test_select_random_answers" time="0.000" /><testcase classname="tests.test_bubble_shader.TestBubbleShader" name="test_shade_with_predefined_answers" time="0.001" /><testcase classname="tests.test_bubble_shader.TestBubbleShader" name="test_empty_rows_handling" time="0.001" /><testcase classname="tests.test_bubble_shader.TestBubbleShader" name="test_partial_sheet_shading" time="0.001" /><testcase classname="tests.test_bubble_shader.TestBubbleShader" name="test_full_sheet_shading" time="0.005" /><testcase classname="tests.test_corners_visualizer" name="test_visualize_corners_with_none" time="0.001" /><testcase classname="tests.test_corners_visualizer" name="test_visualize_corners_with_data" time="0.001" /><testcase classname="tests.test_corners_visualizer" name="test_all_corners_detected_and_valid" time="0.000" /><testcase classname="tests.test_corners_visualizer" name="test_all_corners_detected_with_invalid_structure" time="0.000" /><testcase classname="tests.test_corners_visualizer" name="test_get_corner_directions" time="0.000" /><testcase classname="tests.test_corners_visualizer" name="test_visualize_corners_with_message" time="0.001" /><testcase classname="tests.test_corners_visualizer" name="test_visualize_corners_edge_cases" time="0.001" /><testcase classname="tests.test_enhanced_rectification.TestEnhancedRectification" name="test_enhanced_corner_detection" time="0.145" /><testcase classname="tests.test_enhanced_rectification.TestEnhancedRectification" name="test_angle_calculation" time="0.001" /><testcase classname="tests.test_enhanced_rectification.TestEnhancedRectification" name="test_rectification_pipeline" time="0.152"><failure message="assert None is not None">self = &lt;test_enhanced_rectification.TestEnhancedRectification object at 0x00000217E1186EA0&gt;
+tmp_path = WindowsPath('C:/Users/MagiaBaiser/AppData/Local/Temp/pytest-of-MagiaBaiser/pytest-8/test_rectification_pipeline0')
+
+    def test_rectification_pipeline(self, tmp_path):
+        """Test complete rectification pipeline."""
+        # Create rotated test image
+        image = np.ones((600, 400, 3), dtype=np.uint8) * 255
+    
+        # Add content
+        cv2.putText(image, "TEST", (150, 300),
+                    cv2.FONT_HERSHEY_SIMPLEX, 3, (0, 0, 0), 3)
+    
+        # Add corner markers at rotated positions
+        angle_rad = np.radians(10)  # 10 degree rotation
+        cos_a, sin_a = np.cos(angle_rad), np.sin(angle_rad)
+    
+        center_x, center_y = 200, 300
+        corners = [
+            (-180, -280), (180, -280), (180, 280), (-180, 280)
+        ]
+    
+        for i, (dx, dy) in enumerate(corners):
+            x = int(center_x + dx * cos_a - dy * sin_a)
+            y = int(center_y + dx * sin_a + dy * cos_a)
+            cv2.rectangle(image, (x-15, y-15), (x+15, y+15), (0, 0, 0), -1)
+    
+        # Process through pipeline
+        pipeline = RectificationPipeline(self.params)
+        rectified, results = pipeline.process(image, visualize=True)
+    
+&gt;       assert rectified is not None
+E       assert None is not None
+
+tests\test_enhanced_rectification.py:109: AssertionError</failure></testcase><testcase classname="tests.test_enhanced_rectification.TestEnhancedRectification" name="test_edge_cases" time="0.400" /><testcase classname="tests.test_enhanced_rectification.TestRectificationIntegration" name="test_service_integration" time="0.294"><failure message="UnboundLocalError: cannot access local variable 'visual_base_img' where it is not associated with a value">self = &lt;test_enhanced_rectification.TestRectificationIntegration object at 0x00000217E10B5450&gt;
+
+    def test_service_integration(self):
+        """Test integration with AnalyzerService."""
+        from app.features.analyzer.service import AnalyzerService
+    
+        # Create test image
+        image = np.ones((1200, 850, 3), dtype=np.uint8) * 255
+    
+        # Test with analyzer service
+        params = {
+            'analyzer': {
+                'enable_rectification': True,
+                'rectification_threshold': 3.0
+            }
+        }
+    
+        service = AnalyzerService(params)
+&gt;       results = service.analyze(image)
+
+tests\test_enhanced_rectification.py:161: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;app.features.analyzer.service.AnalyzerService object at 0x00000217E1624440&gt;
+image = array([[[255, 255, 255],
+        [255, 255, 255],
+        [255, 255, 255],
+        ...,
+        [255, 255, 255],
+     ...   ...,
+        [255, 255, 255],
+        [255, 255, 255],
+        [255, 255, 255]]], shape=(1200, 850, 3), dtype=uint8)
+
+    def analyze(self, image: np.ndarray) -&gt; Dict:
+        """
+        Performs the full analysis pipeline on the input image.
+    
+        Args:
+            image (np.ndarray): The input answer sheet image (expected in BGR format).
+    
+        Returns:
+            Dict: A dictionary containing the analysis results, including:
+                'original_image': The input image.
+                'steps': A list of dictionaries, each describing a pipeline step
+                         (name, description, success, input_image, output_image,
+                          intermediate_visualizations).
+                'final_answers': A list of tuples (question_number, answer_char).
+                'qr_data': The decoded QR code string, or None.
+                'transform_matrix': The perspective transform matrix used for
+                                     rectification, or None.
+        """
+        results = {
+            'original_image': image.copy(),
+            'steps': [],
+            'final_answers': [],
+            'qr_data': None,
+            'transform_matrix': None,
+            # Consider adding 'overall_success': bool here later
+        }
+        # Determine if intermediate visualization steps should be generated and stored
+        visualize_intermediate = self.params.get('debug_options', {}).get(
+            'visualize_intermediate_steps', False)
+        logger.info(
+            f"Starting analysis. Visualize intermediate steps: {visualize_intermediate}")
+    
+        # --- Pipeline Execution ---
+        processing_image = image.copy()  # Image used for actual processing steps
+        # Image to log as input for the current step
+        current_step_input_image = image.copy()
+    
+        corners_initial_raw = None  # Corners detected before rectification
+        # Corners potentially transformed, used for bubble detection
+        corners_for_bubbles = None
+    
+        # --- 1. Rectification &amp; Initial Corner Detection ---
+        logger.info("=== STEP 1: Rectification &amp; Initial Corner Detection ===")
+        rect_viz_steps = {}  # Stores visualizations from this phase
+    
+        # _rectify_if_needed performs initial corner detection and optional rectification
+        rectified_img, transform, corners_initial_raw, initial_cd_viz = self._rectify_if_needed(
+            processing_image, visualize_intermediate
+        )
+        rect_viz_steps.update(initial_cd_viz)  # Merge corner detection visuals
+    
+        step_1_output_img = processing_image.copy()  # Default output is the input
+        rect_success = False  # Flag indicating if rectification was applied
+    
+        if rectified_img is not None:
+            logger.info("Rectification applied. Updating processing image.")
+            processing_image = rectified_img  # Update the image being processed
+            step_1_output_img = rectified_img.copy()  # Set step output
+            results['transform_matrix'] = transform  # Store the matrix
+            rect_success = True
+            if visualize_intermediate:
+                rect_viz_steps["99_RectifiedOutput"] = rectified_img.copy()
+        # Rectification not applied/failed, but initial corners found
+        elif corners_initial_raw and len(corners_initial_raw) == 4:
+            logger.info(
+                "Rectification not applied/failed, but initial corners were detected.")
+            # rect_success remains False
+            # Ensure final detection viz exists if needed
+            if visualize_intermediate and "InitialCD_99_FinalDetection" not in rect_viz_steps:
+                rect_viz_steps["InitialCD_99_FinalDetection"] = visualize_corners(
+                    image.copy(), corners_initial_raw, "Initial Corners (No Rectification)")
+                # Use visualization as output
+                step_1_output_img = rect_viz_steps["InitialCD_99_FinalDetection"]
+        else:  # No rectification AND no initial corners found
+            logger.warning(
+                "Rectification not applied AND initial corner detection failed.")
+            rect_success = False  # Explicitly false
+    
+        results['steps'].append({
+            'name': '1. Rectification &amp; Initial Corners',
+            'description': f'Rectification attempt. Rectified: {rect_success}. Angle threshold: {self.params.get("analyzer", {}).get("rectification_threshold", 5.0):.1f}°. Initial Corners Found: {bool(corners_initial_raw and len(corners_initial_raw) == 4)}.',
+            'success': True,  # Step always runs; sub-ops determine effective success
+            'input_image': image.copy(),  # Original image input
+            'output_image': step_1_output_img,  # Image after potential rectification
+            'intermediate_visualizations': rect_viz_steps if visualize_intermediate else {}
+        })
+        # Input for the next logical step
+        current_step_input_image = processing_image.copy()
+    
+        # --- 2. QR Code Detection ---
+        logger.info("=== STEP 2: QR Code Detection ===")
+        qr_viz_steps = {}
+        qr_data, qr_info, qr_viz_steps_from_detector = self.qr_detector.detect(
+            processing_image, visualize_intermediate  # Use potentially rectified image
+        )
+        results['qr_data'] = qr_data
+        # Needed for filtering later
+        qr_polygon = qr_info.get('polygon') if qr_info else None
+        qr_success = qr_data is not None
+        if visualize_intermediate:
+            qr_viz_steps.update(qr_viz_steps_from_detector)
+    
+        # Determine output image for QR step visualization
+        qr_step_output_img_key = "99_FinalDetection"
+        qr_step_output_img = qr_viz_steps.get(qr_step_output_img_key)
+        if qr_step_output_img is None:  # Generate fallback visualization if not provided by detector
+            qr_step_output_img = visualize_qr(
+                processing_image.copy(), qr_data, qr_info)
+    
+        results['steps'].append({
+            'name': '2. QR Code Detection',
+            'description': f'Detected QR Data: {str(qr_data) if qr_data else "None"}.',
+            'success': qr_success,
+            'input_image': current_step_input_image.copy(),  # Image before QR detection
+            'output_image': qr_step_output_img,  # Visualization of QR detection result
+            'intermediate_visualizations': qr_viz_steps if visualize_intermediate else {}
+        })
+        # current_step_input_image = processing_image.copy() # Input for next step is still processing_image
+    
+        # --- 3. Corner Finalization (Transform &amp; QR Filter) ---
+        logger.info("=== STEP 3: Corner Finalization ===")
+        corner_finalize_viz_steps = {}
+        corners_finalized = None  # Corners ready for bubble detection boundary
+        corner_finalize_description = "Processing initial corners for final use."
+        corner_finalize_success = False
+    
+        if corners_initial_raw and len(corners_initial_raw) == 4:
+            corners_in_current_space = corners_initial_raw  # Start with raw corners
+            visual_base_img = image.copy()  # Image space for initial corners
+    
+            if transform is not None:  # If rectification happened, transform corners
+                logger.info(
+                    "Transforming initial corners to rectified space...")
+                visual_base_img = processing_image.copy()  # Image space is now rectified
+                if visualize_intermediate:
+                    corner_finalize_viz_steps["00_InitialCorners_ForTransform"] = visualize_corners(
+                        image.copy(), corners_initial_raw, "Raw Corners Before Transform")
+                try:
+                    src_pts_list = [
+                        corners_initial_raw['top_left']['center'], corners_initial_raw['top_right']['center'],
+                        corners_initial_raw['bottom_right']['center'], corners_initial_raw['bottom_left']['center']
+                    ]
+                    src_pts_np = np.array([src_pts_list], dtype=np.float32)
+                    transformed_pts_np = cv2.perspectiveTransform(
+                        src_pts_np, transform)
+    
+                    if transformed_pts_np is not None:
+                        corners_in_current_space = {  # Update corners to transformed coordinates
+                            'top_left': {'center': tuple(map(float, transformed_pts_np[0, 0]))},
+                            'top_right': {'center': tuple(map(float, transformed_pts_np[0, 1]))},
+                            'bottom_right': {'center': tuple(map(float, transformed_pts_np[0, 2]))},
+                            'bottom_left': {'center': tuple(map(float, transformed_pts_np[0, 3]))}
+                        }
+                        corner_finalize_description = "Initial corners transformed to rectified space. "
+                        if visualize_intermediate:
+                            viz_transformed = visualize_corners(
+                                processing_image.copy(), corners_in_current_space, "Transformed Corners")
+                            corner_finalize_viz_steps["01_TransformedInitialCorners"] = viz_transformed
+                    else:
+                        raise ValueError(
+                            "cv2.perspectiveTransform returned None")
+                except Exception as e:
+                    logger.error(
+                        f"Error transforming initial corners: {e}", exc_info=True)
+                    corners_in_current_space = None  # Mark transform as failed
+                    corner_finalize_description = "Failed to transform initial corners. "
+            else:  # No transform needed, corners_in_current_space remains corners_initial_raw
+                corner_finalize_description = "No rectification transform applied. "
+                if visualize_intermediate:
+                    corner_finalize_viz_steps["00_InitialCorners_NoTransform"] = visualize_corners(
+                        image.copy(), corners_initial_raw, "Initial Corners (No Transform Needed)")
+    
+            # Apply QR filtering if needed and possible
+            if corners_in_current_space and len(corners_in_current_space) == 4:
+                qr_filter_enabled = self.params.get('corner_detection', {}).get(
+                    'validator', {}).get('qr_filter_enabled', True)
+                if qr_polygon and qr_filter_enabled:
+                    logger.info("Filtering finalized corners by QR polygon...")
+                    temp_filtered_corners = {}
+                    valid_after_qr_count = 0
+                    for name, corner_data in corners_in_current_space.items():
+                        if corner_data and 'center' in corner_data:
+                            center_pt = tuple(
+                                map(float, corner_data['center']))
+                            # Keep if point is OUTSIDE or ON edge of QR polygon
+                            if cv2.pointPolygonTest(np.array(qr_polygon, dtype=np.int32), center_pt, False) &lt; 0:
+                                temp_filtered_corners[name] = corner_data
+                                valid_after_qr_count += 1
+                            else:
+                                logger.warning(
+                                    f"Corner '{name}' at {center_pt} excluded by QR filter.")
+                                # Mark as excluded
+                                temp_filtered_corners[name] = None
+                        else:  # Should not happen if input was 4 valid corners
+                            logger.error(
+                                f"Invalid corner data encountered before QR filtering for {name}")
+                            valid_after_qr_count = -1  # Indicate error
+                            break
+    
+                    if valid_after_qr_count == 4:
+                        corners_finalized = temp_filtered_corners
+                        corner_finalize_description += "Successfully filtered by QR polygon."
+                        corner_finalize_success = True
+                    else:
+                        logger.warning(
+                            f"QR filtering resulted in {valid_after_qr_count}/4 valid corners. Falling back.")
+                        corners_finalized = corners_in_current_space  # Use corners before QR filter
+                        corner_finalize_description += f"QR filtering removed corners. Using pre-QR corners."
+                        # Success depends on whether pre-QR corners were valid
+                        corner_finalize_success = corners_finalized is not None and all(
+                            corners_finalized.values())
+    
+                    if visualize_intermediate:
+                        viz_qr_filtered = visualize_corners(
+                            visual_base_img.copy(), corners_finalized, "Corners After QR Filter")
+                        cv2.polylines(viz_qr_filtered, [np.array(
+                            # Draw QR poly
+                            qr_polygon, dtype=np.int32)], True, (0, 0, 255), 1)
+                        corner_finalize_viz_steps["02_CornersAfterQRFilter"] = viz_qr_filtered
+    
+                else:  # No QR polygon or QR filter disabled
+                    corners_finalized = corners_in_current_space
+                    corner_finalize_description += "No QR filtering applied."
+                    corner_finalize_success = corners_finalized is not None and all(
+                        corners_finalized.values())
+            else:  # corners_in_current_space is None or not 4
+                corner_finalize_description += "Not enough valid corners after transform."
+                corner_finalize_success = False
+        else:  # initial corners not found or incomplete
+            corner_finalize_description = "Initial corner detection did not yield 4 corners."
+            corner_finalize_success = False
+    
+        corners_for_bubbles = corners_finalized  # Set the final corners for next step
+    
+        # Output image for this logical step
+        # Default to base image for this step
+&gt;       corner_finalize_output_img = visual_base_img.copy()
+E       UnboundLocalError: cannot access local variable 'visual_base_img' where it is not associated with a value
+
+app\features\analyzer\service.py:297: UnboundLocalError</failure></testcase><testcase classname="tests.test_generator_header" name="test_header_builder_draw_with_explicit_width" time="0.012" /><testcase classname="tests.test_generator_header" name="test_header_builder_draw_without_width" time="0.010" /><testcase classname="tests.test_generator_header" name="test_title_centering" time="0.002" /><testcase classname="tests.test_generator_header" name="test_header_fields_drawing" time="0.005" /><testcase classname="tests.test_generator_integration.TestGeneratorIntegration" name="test_generate_blank_sheet" time="0.085" /><testcase classname="tests.test_generator_integration.TestGeneratorIntegration" name="test_generate_shaded_sheet" time="0.082" /><testcase classname="tests.test_generator_integration.TestGeneratorIntegration" name="test_generate_with_custom_parameters" time="0.084" /><testcase classname="tests.test_generator_integration.TestGeneratorIntegration" name="test_create_answer_key" time="0.082" /><testcase classname="tests.test_shader_debug.TestShaderDebug" name="test_bubble_position_calculation" time="0.001" /><testcase classname="tests.test_shader_debug.TestShaderDebug" name="test_direct_coordinate_shading" time="0.088" /><testcase classname="tests.test_shader_debug.TestShaderDebug" name="test_verify_bubble_detection" time="0.088" /><testcase classname="tests.test_shader_visual.TestShaderVisual" name="test_generate_and_shade" time="0.172" /><testcase classname="tests.test_shader_visual.TestShaderVisual" name="test_direct_shader" time="0.087" /></testsuite></testsuites>

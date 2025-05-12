@@ -115,3 +115,76 @@ class GeneratorService:
             size_percent=0,
             **kwargs
         )
+
+    def debug_shading(self, output_dir: Optional[str] = None, **kwargs) -> Dict:
+        """
+        Debug method to analyze shading process step by step.
+        
+        Args:
+            output_dir: Directory to save debug images
+            **kwargs: Parameters for sheet generation
+            
+        Returns:
+            Dict with diagnostic information
+        """
+        import logging
+        from pathlib import Path
+        
+        # Enable debug logging temporarily
+        old_level = logging.getLogger().level
+        logging.getLogger().setLevel(logging.DEBUG)
+        
+        try:
+            # Generate blank sheet
+            blank_sheet = self.generate_blank(**kwargs)
+            
+            # Create shader with debug enabled
+            shader = self.bubble_shader
+            
+            # Calculate bubble positions
+            positions = shader._calculate_bubble_positions()
+            
+            # Group into rows
+            rows = shader._group_calculated_bubbles(positions)
+            
+            # Generate test answers
+            test_answers = {
+                f'row_{i}': i % 5 for i in range(10)
+            }
+            
+            # Apply shading
+            shaded_sheet = shader.shade(
+                blank_sheet,
+                answers=test_answers,
+                intensity=(50, 150),
+                offset_range=1,
+                size_percent=0.1
+            )
+            
+            # Save debug images if directory provided
+            if output_dir:
+                output_path = Path(output_dir)
+                output_path.mkdir(exist_ok=True)
+                
+                cv2.imwrite(str(output_path / "blank.jpg"), blank_sheet)
+                cv2.imwrite(str(output_path / "shaded.jpg"), shaded_sheet)
+                
+                # Create difference image
+                diff = cv2.absdiff(blank_sheet, shaded_sheet)
+                cv2.imwrite(str(output_path / "difference.jpg"), diff)
+            
+            # Calculate statistics
+            pixels_changed = np.count_nonzero(cv2.absdiff(blank_sheet, shaded_sheet) > 0)
+            
+            return {
+                'bubble_positions': len(positions),
+                'rows_found': len(rows),
+                'answers_applied': len(test_answers),
+                'pixels_changed': pixels_changed,
+                'first_position': positions[0] if positions else None,
+                'first_row': list(rows.values())[0] if rows else None
+            }
+        
+        finally:
+            # Restore logging level
+            logging.getLogger().setLevel(old_level)

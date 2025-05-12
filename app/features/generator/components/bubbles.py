@@ -11,7 +11,8 @@ from app.core.constants import (
     BUBBLE_COLOR, LETTER_COLOR, QUESTION_NUMBER_COLOR,
     LEFT_COL_X, RIGHT_COL_X, QUESTION_START_Y,
     QUESTION_SPACING_Y, OPTION_SPACING, OPTION_START_OFFSET_X,
-    ITEMS_PER_COLUMN, ITEMS_PER_SHEET
+    ITEMS_PER_COLUMN, ITEMS_PER_SHEET,
+    LETTER_OFFSET_X, LETTER_OFFSET_Y  # Add these imports
 )
 
 
@@ -89,13 +90,14 @@ class BubbleGrid:
             width=CIRCLE_THICKNESS
         )
 
-        # Draw letter centered
+        # Draw letter with offset
         bbox = draw.textbbox((0, 0), letter, font=self.normal_font)
         letter_width = bbox[2] - bbox[0]
         letter_height = bbox[3] - bbox[1]
 
-        text_x = x - letter_width // 2
-        text_y = y - letter_height // 2
+        # Center the letter and apply the offsets
+        text_x = x - letter_width // 2 + LETTER_OFFSET_X
+        text_y = y - letter_height // 2 + LETTER_OFFSET_Y
 
         draw.text(
             (text_x, text_y),
