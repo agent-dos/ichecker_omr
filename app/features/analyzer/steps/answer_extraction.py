@@ -23,6 +23,7 @@ class AnswerExtractionStep(AnalysisStep):
     def process(self, context: Dict) -> Dict:
         """Process answer extraction."""
         logger.info("=== STEP 6: Answer Extraction ===")
+        self.step_name = "6. Answer Extraction"
 
         visual_chain = context['visual_chain']
         bubble_scores = context.get('bubble_scores', [])

@@ -1,7 +1,7 @@
 # app/features/analyzer/steps/rectification.py
 """Rectification and initial corner detection step."""
 import logging
-from typing import Dict, Tuple, Optional
+from typing import Dict, Optional
 
 import cv2
 import numpy as np
@@ -20,14 +20,16 @@ class RectificationStep(AnalysisStep):
         """Initialize with rectification parameters."""
         super().__init__(params)
         self.pipeline = RectificationPipeline(params)
+        self.step_name = "2. Rectification & Corner Detection"  # Updated numbering
 
     def process(self, context: Dict) -> Dict:
         """Process rectification and corner detection."""
-        logger.info("=== STEP 1: Rectification & Initial Corner Detection ===")
+        logger.info("=== STEP 2: Rectification & Initial Corner Detection ===")
 
         processing_img = context['processing_img']
         visual_chain = context['visual_chain']
         visualize = context['visualize']
+        qr_info = context.get('qr_info')  # Get QR info from previous step
 
         # Perform rectification
         rectified_img, results = self.pipeline.process(
@@ -46,10 +48,10 @@ class RectificationStep(AnalysisStep):
             rectified_img = processing_img
             success_msg = "No rectification needed/possible"
 
-        # Create corner visualization
+        # Create corner visualization showing detected corners
         corner_viz = self._create_corner_visualization(visual_chain, corners)
 
-        # For the main visualization, keep it simple
+        # For the main visualization, show rectified result
         output_viz = rectified_img.copy()
 
         # Create step info with additional data for column display
@@ -68,7 +70,7 @@ class RectificationStep(AnalysisStep):
             'rectified': rectified_img
         }
         step_info['column_labels'] = {
-            'input': 'Input Image',
+            'input': 'After QR Detection',
             'corners': 'Detected Corners',
             'rectified': 'Rectified Output'
         }

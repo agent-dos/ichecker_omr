@@ -18,6 +18,7 @@ class CornerFinalizationStep(AnalysisStep):
     def process(self, context: Dict) -> Dict:
         """Process corner finalization."""
         logger.info("=== STEP 3: Corner Finalization ===")
+        self.step_name = "3. Corner Finalization"
 
         processing_img = context['processing_img']
         visual_chain = context['visual_chain']

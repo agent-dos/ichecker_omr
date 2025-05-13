@@ -23,6 +23,7 @@ class BubbleDetectionStep(AnalysisStep):
     def process(self, context: Dict) -> Dict:
         """Process bubble detection."""
         logger.info("=== STEP 4: Bubble Detection ===")
+        self.step_name = "4. Bubble Detection"
 
         processing_img = context['processing_img']
         visual_chain = context['visual_chain']

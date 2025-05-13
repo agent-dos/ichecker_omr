@@ -7,9 +7,8 @@ import logging  # Import logging
 # Import config functions and constants maps
 # Import the config_manager instance itself to call its methods
 from app.core.config import (
-    # Import the instance instead of reset_config
-    get_config, save_config, config_manager,
-    CV2_INTERPOLATION_FLAGS, CV2_MORPH_OPS, CV2_ADAPTIVE_METHODS, CV2_THRESH_TYPES
+    config_manager, get_config, get_cv2_flag,
+    CV2_INTERPOLATION_FLAGS, CV2_MORPH_OPS, CV2_ADAPTIVE_METHODS, CV2_THRESH_TYPES, save_config
 )
 # DEFAULT_PARAMS might not be needed directly here anymore if reset uses manager
 # from app.core.constants import DEFAULT_PARAMS

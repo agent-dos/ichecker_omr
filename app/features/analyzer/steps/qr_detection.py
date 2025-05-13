@@ -19,20 +19,21 @@ class QRDetectionStep(AnalysisStep):
         """Initialize with QR detection parameters."""
         super().__init__(params)
         self.detector = QRDetector(params.get('qr_detection', {}))
+        self.step_name = "1. QR Code Detection"  # Updated numbering
 
     def process(self, context: Dict) -> Dict:
-        """Process QR code detection."""
-        logger.info("=== STEP 2: QR Code Detection ===")
+        """Process QR code detection on original image."""
+        logger.info("=== STEP 1: QR Code Detection ===")
 
         processing_img = context['processing_img']
         visual_chain = context['visual_chain']
         visualize = context['visualize']
 
-        # Detect QR code
+        # Detect QR code on original image
         qr_data, qr_info, viz_steps = self.detector.detect(
             processing_img, visualize)
 
-        # Create visualization with corners in background
+        # Create visualization showing QR detection results
         output_viz = self._create_visualization(visual_chain, qr_data, qr_info)
 
         # Create step info
@@ -49,7 +50,8 @@ class QRDetectionStep(AnalysisStep):
             'qr_data': qr_data,
             'context_update': {
                 'visual_chain': output_viz,
-                'qr_polygon': qr_info.get('polygon') if qr_info else None
+                'qr_polygon': qr_info.get('polygon') if qr_info else None,
+                'qr_info': qr_info  # Pass full QR info to subsequent steps
             }
         }
 
@@ -72,7 +74,7 @@ class QRDetectionStep(AnalysisStep):
                 cv2.putText(viz, f"QR: {qr_data}", (x, y),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
         else:
-            cv2.putText(viz, "No QR Code Detected", (50, 100),
+            cv2.putText(viz, "No QR Code Detected", (50, 50),
                         cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
 
         return viz

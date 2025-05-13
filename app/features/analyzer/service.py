@@ -5,8 +5,8 @@ from typing import Dict, Optional
 
 import numpy as np
 
-from app.features.analyzer.steps.rectification import RectificationStep
 from app.features.analyzer.steps.qr_detection import QRDetectionStep
+from app.features.analyzer.steps.rectification import RectificationStep
 from app.features.analyzer.steps.corner_finalization import CornerFinalizationStep
 from app.features.analyzer.steps.bubble_detection import BubbleDetectionStep
 from app.features.analyzer.steps.bubble_analysis import BubbleAnalysisStep
@@ -25,8 +25,8 @@ class AnalyzerService:
 
     def _initialize_steps(self):
         """Initialize all pipeline steps."""
-        self.rectification_step = RectificationStep(self.params)
         self.qr_detection_step = QRDetectionStep(self.params)
+        self.rectification_step = RectificationStep(self.params)
         self.corner_finalization_step = CornerFinalizationStep(self.params)
         self.bubble_detection_step = BubbleDetectionStep(self.params)
         self.bubble_analysis_step = BubbleAnalysisStep(self.params)
@@ -53,14 +53,14 @@ class AnalyzerService:
             'visualize': visualize
         }
 
-        # Step 1: Rectification & Corner Detection
-        context = self._execute_step(
-            self.rectification_step, context, results, 'transform_matrix'
-        )
-
-        # Step 2: QR Code Detection
+        # Step 1: QR Code Detection (first to get metadata early)
         context = self._execute_step(
             self.qr_detection_step, context, results, 'qr_data'
+        )
+
+        # Step 2: Rectification & Initial Corner Detection
+        context = self._execute_step(
+            self.rectification_step, context, results, 'transform_matrix'
         )
 
         # Step 3: Corner Finalization
